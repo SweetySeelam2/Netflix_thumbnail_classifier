@@ -146,9 +146,7 @@ Features:
 
 ## 👩‍💼 About the Author    
 
-**Sweety Seelam** | Business Analyst and aspiring Data Scientist                             
-
-| Passionate about building end-to-end ML solutions for real-world problems in media and entertainment                                                                                                            
+**Sweety Seelam** | Business Analyst | Aspiring Data Scientist | Passionate about building end-to-end ML solutions for real-world problems                                                                                                      
                                                                                                                                            
 Email: sweetyseelam2@gmail.com                                                   
 
@@ -159,8 +157,9 @@ Email: sweetyseelam2@gmail.com
 
 ---
 
-## 🔒 Proprietary & All Rights Reserved
+## 🔐 Proprietary & All Rights Reserved
+© 2025 Sweety Seelam. All rights reserved.
 
-© 2025 Sweety Seelam. This work is proprietary and protected by copyright. All content, models, code, and visuals are © 2025 Sweety Seelam. No part of this project, app, code, or analysis may be copied, reproduced, distributed, or used for any purpose—commercial or otherwise—without explicit written permission from the author.
+This project, including its source code, trained models, datasets (where applicable), visuals, and dashboard assets, is protected under copyright and made available for educational and demonstrative purposes only.
 
-For licensing, commercial use, or collaboration inquiries, please contact: Email: sweetyseelam2@gmail.com
+Unauthorized commercial use, redistribution, or duplication of any part of this project is strictly prohibited.
