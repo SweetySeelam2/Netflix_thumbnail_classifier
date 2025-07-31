@@ -153,7 +153,8 @@ Email: sweetyseelam2@gmail.com
 🔗 **Profile Links**                                                                                                                                                                       
 [Portfolio Website](https://sweetyseelam2.github.io/SweetySeelam.github.io/)                                                         
 [LinkedIn](https://www.linkedin.com/in/sweetyrao670/)                                                                   
-[GitHub](https://github.com/SweetySeelam2)                                                             
+[GitHub](https://github.com/SweetySeelam2)  
+[Medium](https://medium.com/@sweetyseelam)
 
 ---
 
