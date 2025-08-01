@@ -43,10 +43,11 @@ selection = st.sidebar.radio("Go to", pages)
 
 # ✅ Image preprocessing
 def preprocess_image(image):
-    image = image.convert("RGB")  # ✅ Ensure RGB
-    image = image.resize((225, 225))  # ✅ Resize to model input
-    img_array = np.array(image) / 255.0  # Normalize
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    if image.mode != "RGB":
+        image = image.convert("RGB")  # 💥 Fix grayscale → RGB
+    image = image.resize((225, 225))
+    img_array = np.asarray(image, dtype=np.float32) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)  # (1, 225, 225, 3)
     return img_array
 
 # 🧾 Pages
