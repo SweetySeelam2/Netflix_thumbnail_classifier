@@ -46,12 +46,13 @@ st.sidebar.title("Navigation")
 pages = ["Project Overview", "Try It Now", "Model Info", "Results & Insights"]
 selection = st.sidebar.radio("Go to", pages)
 
-# --- Image Preprocessing: FORCE RGB (3-channel for EfficientNet) ---
+# --- Image Preprocessing: FORCE GRAYSCALE (1-channel for EfficientNetB4) ---
 def preprocess_image(image):
-    image = image.convert("RGB")             # Always 3 channels
+    image = image.convert("L")                # Always 1 channel (grayscale)
     image = image.resize((225, 225))
     img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)   # (1,225,225,3)
+    img_array = np.expand_dims(img_array, axis=-1)  # (225,225,1)
+    img_array = np.expand_dims(img_array, axis=0)   # (1,225,225,1)
     return img_array
 
 # --- Main Pages ---
@@ -61,7 +62,7 @@ if selection == "Project Overview":
 This Deep Learning project classifies Netflix movie thumbnails into five genres — **Action, Comedy, Drama, Romance, Thriller** — using a custom-trained EfficientNetB4 model.
 
 **Dataset**: 2,330 unique posters (466 per genre)  
-**Model Architecture**: EfficientNetB4 (fine-tuned)  
+**Model Architecture**: EfficientNetB4 (fine-tuned, grayscale)  
 **Accuracy**: ~39%  
 
 **Business Use Case**:
@@ -120,7 +121,7 @@ elif selection == "Model Info":
     st.header("🧠 Model Details")
     st.markdown("""
 - Architecture: EfficientNetB4  
-- Input Size: 225x225  
+- Input Size: 225x225 (grayscale)  
 - Optimizer: Adam (lr=1e-5)  
 - Loss: Categorical Crossentropy  
 - Regularization: Dropout 0.3, Class Weights  
