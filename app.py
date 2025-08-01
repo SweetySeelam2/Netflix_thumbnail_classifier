@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import tensorflow as tf
+import keras
 from PIL import Image
 import pickle
 import os
@@ -20,9 +21,10 @@ if not os.path.exists(MODEL_PATH):
         urllib.request.urlretrieve(HF_URL, MODEL_PATH)
         st.success("✅ Model downloaded successfully!")
 
-# Load model
+# Load model (Enable unsafe deserialization for Lambda layer)
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    keras.config.enable_unsafe_deserialization()  # ✅ Add this line
+    model = tf.keras.models.load_model(MODEL_PATH)  # ✅ Works even with Lambda
     st.success("✅ Model loaded successfully.")
 except Exception as e:
     st.error(f"❌ Failed to load model: {str(e)}")
