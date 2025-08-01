@@ -44,10 +44,13 @@ pages = ["Project Overview", "Try It Now", "Model Info", "Results & Insights"]
 selection = st.sidebar.radio("Go to", pages)
 
 # ✅ Image preprocessing
+# ✅ Image preprocessing (force RGB for model input)
 def preprocess_image(image):
+    if image.mode != "RGB":
+        image = image.convert("RGB")  # 🔥 Force 3 channels
     image = image.resize((225, 225))
     img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)  # shape: (1, 225, 225, 1 or 3)
+    img_array = np.expand_dims(img_array, axis=0)  # shape: (1, 225, 225, 3)
     return img_array
 
 # 🧾 Pages
