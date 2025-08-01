@@ -61,7 +61,7 @@ if selection == "Project Overview":
 This Deep Learning project classifies Netflix movie thumbnails into five genres — **Action, Comedy, Drama, Romance, Thriller** — using a custom-trained EfficientNetB4 model.
 
 **Dataset**: 2,330 unique posters (466 per genre)  
-**Model Architecture**: EfficientNetB4 (fine-tuned, grayscale)  
+**Model Architecture**: EfficientNetB4 (fine-tuned, RGB)  
 **Accuracy**: ~39%  
 
 **Business Use Case**:
@@ -120,7 +120,7 @@ elif selection == "Model Info":
     st.header("🧠 Model Details")
     st.markdown("""
 - Architecture: EfficientNetB4  
-- Input Size: 225x225 (grayscale)  
+- Input Size: 224x224 (RGB)
 - Optimizer: Adam (lr=1e-5)  
 - Loss: Categorical Crossentropy  
 - Regularization: Dropout 0.3, Class Weights  
