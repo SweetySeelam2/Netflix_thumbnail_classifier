@@ -7,53 +7,50 @@ import pickle
 import os
 import urllib.request
 
-# Page config
+# --- Streamlit Page Config ---
 st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide")
 
-# File paths
+# --- File Paths ---
 MODEL_PATH = "model/final_efficientnetb4_model_rgb.keras"
 HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model_rgb.keras"
 
-# Download model if missing
+# --- Download Model if Missing ---
 if not os.path.exists(MODEL_PATH):
     os.makedirs("model", exist_ok=True)
     with st.spinner("📥 Downloading model from Hugging Face..."):
         urllib.request.urlretrieve(HF_URL, MODEL_PATH)
         st.success("✅ Model downloaded successfully!")
 
-# Load model (Enable unsafe deserialization for Lambda layer)
+# --- Load Model with Unsafe Deserialization ---
 try:
-    keras.config.enable_unsafe_deserialization()  # ✅ Add this line
-    model = tf.keras.models.load_model(MODEL_PATH)  # ✅ Works even with Lambda
+    keras.config.enable_unsafe_deserialization()
+    model = tf.keras.models.load_model(MODEL_PATH)
     st.success("✅ Model loaded successfully.")
 except Exception as e:
     st.error(f"❌ Failed to load model: {str(e)}")
     st.stop()
 
-# Load label map
+# --- Load Label Map ---
 with open("model/label_map_efficientnetb4.pkl", "rb") as f:
     label_map = pickle.load(f)
 inv_label_map = {v: k for k, v in label_map.items()}
 
-# Title
+# --- Title & Sidebar ---
 st.title("🎬 Netflix Thumbnail Genre Classifier (EfficientNetB4)")
-
-# Sidebar
 st.sidebar.title("Navigation")
 pages = ["Project Overview", "Try It Now", "Model Info", "Results & Insights"]
 selection = st.sidebar.radio("Go to", pages)
 
-# ✅ Image preprocessing
-# ✅ Image preprocessing (force RGB for model input)
+# --- Image Preprocessing: FORCE GRAYSCALE (Lambda expects (225,225,1)) ---
 def preprocess_image(image):
-    if image.mode != "RGB":
-        image = image.convert("RGB")  # 🔥 Force 3 channels
+    image = image.convert("L")               # Grayscale (1 channel)
     image = image.resize((225, 225))
     img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)  # shape: (1, 225, 225, 3)
+    img_array = np.expand_dims(img_array, axis=-1)  # (225,225,1)
+    img_array = np.expand_dims(img_array, axis=0)   # (1,225,225,1)
     return img_array
 
-# 🧾 Pages
+# --- Main Pages ---
 if selection == "Project Overview":
     st.header("📌 Project Overview")
     st.markdown("""
@@ -98,10 +95,6 @@ elif selection == "Try It Now":
             st.stop()
 
     if image:
-    # 🔁 Ensure RGB conversion BEFORE everything else
-        if image.mode != "RGB":
-            image = image.convert("RGB")
-
         st.image(image, caption="Input Poster", use_column_width=True)
         img_array = preprocess_image(image)
 
@@ -147,7 +140,7 @@ elif selection == "Results & Insights":
 - 🧠 Manual workload ↓ 60-70%
     """)
 
-# Footer
+# --- Footer ---
 st.markdown("---")
 st.markdown("© 2025 Sweety Seelam | Powered by Streamlit")
 st.markdown("All copyrights reserved")
