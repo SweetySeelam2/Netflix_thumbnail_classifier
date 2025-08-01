@@ -95,6 +95,10 @@ elif selection == "Try It Now":
             st.stop()
 
     if image:
+    # 🔁 Ensure RGB conversion BEFORE everything else
+        if image.mode != "RGB":
+            image = image.convert("RGB")
+
         st.image(image, caption="Input Poster", use_column_width=True)
         img_array = preprocess_image(image)
 
