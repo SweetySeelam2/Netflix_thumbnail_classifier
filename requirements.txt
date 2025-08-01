@@ -1,12 +1,12 @@
-streamlit
-tensorflow
+streamlit==1.47.1
+tensorflow==2.19.0
 numpy
+pandas
+opencv-python
 opencv-python-headless
 Pillow
 matplotlib
 scikit-learn
-pandas
 tqdm
-requests
 seaborn
-opencv-python
+requests
