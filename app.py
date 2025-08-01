@@ -46,12 +46,12 @@ st.sidebar.title("Navigation")
 pages = ["Project Overview", "Try It Now", "Model Info", "Results & Insights"]
 selection = st.sidebar.radio("Go to", pages)
 
-# --- Image Preprocessing: FORCE GRAYSCALE (1-channel for EfficientNetB4) ---
+# --- Image Preprocessing ---
 def preprocess_image(image):
-    image = image.convert("RGB")
-    image = image.resize((224, 224))
+    image = image.convert("RGB")        # Convert to RGB (3 channels)
+    image = image.resize((224, 224))    # Resize to 224x224
     img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
     return img_array
 
 # --- Main Pages ---
@@ -92,7 +92,7 @@ elif selection == "Try It Now":
     if submit_user and uploaded_file:
         try:
             image = Image.open(uploaded_file)
-        except Exception as e:
+        except Exception:
             st.error("❌ Could not open the uploaded image.")
             st.stop()
     elif submit_sample:
@@ -105,6 +105,7 @@ elif selection == "Try It Now":
     if image is not None:
         st.image(image, caption="Input Poster", use_column_width=True)
         img_array = preprocess_image(image)
+        st.write(f"Preprocessed image shape: {img_array.shape}")  # Debug shape
 
         try:
             prediction = model.predict(img_array)
@@ -120,7 +121,7 @@ elif selection == "Model Info":
     st.header("🧠 Model Details")
     st.markdown("""
 - Architecture: EfficientNetB4  
-- Input Size: 224x224 (RGB)
+- Input Size: 224x224 (RGB)  
 - Optimizer: Adam (lr=1e-5)  
 - Loss: Categorical Crossentropy  
 - Regularization: Dropout 0.3, Class Weights  
