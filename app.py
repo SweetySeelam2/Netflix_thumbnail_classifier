@@ -39,12 +39,10 @@ selection = st.sidebar.radio("Go to", pages)
 
 # Utility function to preprocess image
 def preprocess_image(image):
-    # Ensure correct size
+    # ✅ Force correct size and color mode
     image = image.resize((224, 224))
-    # Force RGB (3 channels)
-    image = image.convert("RGB")
-    # Convert to normalized NumPy array
-    img_array = np.array(image) / 255.0
+    image = image.convert("RGB")  # ⬅️ This ensures 3 channels
+    img_array = np.array(image) / 255.0  # Normalize to 0-1
     img_array = np.expand_dims(img_array, axis=0)  # Shape: (1, 224, 224, 3)
     return img_array
 
