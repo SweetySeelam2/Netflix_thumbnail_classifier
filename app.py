@@ -10,8 +10,8 @@ import urllib.request
 st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide")
 
 # File paths
-MODEL_PATH = "model/final_efficientnetb4_model.keras"
-HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.keras"
+MODEL_PATH = "model/final_efficientnetb4_model_rgb.keras"
+HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model_rgb.keras"
 
 # Download model if missing
 if not os.path.exists(MODEL_PATH):
@@ -43,11 +43,9 @@ selection = st.sidebar.radio("Go to", pages)
 
 # ✅ Image preprocessing
 def preprocess_image(image):
-    if image.mode != "RGB":
-        image = image.convert("RGB")  # 💥 Fix grayscale → RGB
     image = image.resize((225, 225))
     img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)  # (1, 225, 225, 3)
+    img_array = np.expand_dims(img_array, axis=0)  # shape: (1, 225, 225, 1 or 3)
     return img_array
 
 # 🧾 Pages
