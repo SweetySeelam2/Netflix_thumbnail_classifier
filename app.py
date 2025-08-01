@@ -13,6 +13,7 @@ st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide
 # --- File Paths ---
 MODEL_PATH = "model/final_efficientnetb4_model_rgb.keras"
 HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model_rgb.keras"
+LABEL_MAP_PATH = "model/label_map_efficientnetb4.pkl"
 
 # --- Download Model if Missing ---
 if not os.path.exists(MODEL_PATH):
@@ -31,23 +32,26 @@ except Exception as e:
     st.stop()
 
 # --- Load Label Map ---
-with open("model/label_map_efficientnetb4.pkl", "rb") as f:
-    label_map = pickle.load(f)
-inv_label_map = {v: k for k, v in label_map.items()}
+try:
+    with open(LABEL_MAP_PATH, "rb") as f:
+        label_map = pickle.load(f)
+    inv_label_map = {v: k for k, v in label_map.items()}
+except Exception as e:
+    st.error(f"❌ Failed to load label map: {str(e)}")
+    st.stop()
 
-# --- Title & Sidebar ---
+# --- Page Navigation ---
 st.title("🎬 Netflix Thumbnail Genre Classifier (EfficientNetB4)")
 st.sidebar.title("Navigation")
 pages = ["Project Overview", "Try It Now", "Model Info", "Results & Insights"]
 selection = st.sidebar.radio("Go to", pages)
 
-# --- Image Preprocessing: FORCE GRAYSCALE (Lambda expects (225,225,1)) ---
+# --- Image Preprocessing: FORCE RGB (3-channel for EfficientNet) ---
 def preprocess_image(image):
-    image = image.convert("L")               # Grayscale (1 channel)
+    image = image.convert("RGB")             # Always 3 channels
     image = image.resize((225, 225))
     img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=-1)  # (225,225,1)
-    img_array = np.expand_dims(img_array, axis=0)   # (1,225,225,1)
+    img_array = np.expand_dims(img_array, axis=0)   # (1,225,225,3)
     return img_array
 
 # --- Main Pages ---
@@ -86,7 +90,11 @@ elif selection == "Try It Now":
 
     image = None
     if submit_user and uploaded_file:
-        image = Image.open(uploaded_file)
+        try:
+            image = Image.open(uploaded_file)
+        except Exception as e:
+            st.error("❌ Could not open the uploaded image.")
+            st.stop()
     elif submit_sample:
         try:
             image = Image.open(sample_options[selected_sample])
@@ -94,16 +102,19 @@ elif selection == "Try It Now":
             st.error(f"Sample image for '{selected_sample}' not found.")
             st.stop()
 
-    if image:
+    if image is not None:
         st.image(image, caption="Input Poster", use_column_width=True)
         img_array = preprocess_image(image)
 
-        prediction = model.predict(img_array)
-        predicted_label = inv_label_map[np.argmax(prediction)]
-        confidence = np.max(prediction) * 100
+        try:
+            prediction = model.predict(img_array)
+            predicted_label = inv_label_map[np.argmax(prediction)]
+            confidence = np.max(prediction) * 100
 
-        st.markdown(f"**🎯 Predicted Genre:** `{predicted_label}`")
-        st.markdown(f"**📊 Confidence:** `{confidence:.2f}%`")
+            st.markdown(f"**🎯 Predicted Genre:** `{predicted_label}`")
+            st.markdown(f"**📊 Confidence:** `{confidence:.2f}%`")
+        except Exception as e:
+            st.error(f"❌ Model prediction failed: {str(e)}")
 
 elif selection == "Model Info":
     st.header("🧠 Model Details")
