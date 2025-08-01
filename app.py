@@ -49,10 +49,9 @@ selection = st.sidebar.radio("Go to", pages)
 # === Image Preprocessing Function ===
 def preprocess_image(image):
     image = image.resize((225, 225))             # Match training input size
-    image = image.convert("L")                   # Convert to grayscale (1 channel)
+    image = image.convert("RGB")                 # Ensure 3 channels
     img_array = np.array(image) / 255.0          # Normalize
-    img_array = np.expand_dims(img_array, axis=-1)  # Shape: (225, 225, 1)
-    img_array = np.expand_dims(img_array, axis=0)   # Shape: (1, 225, 225, 1)
+    img_array = np.expand_dims(img_array, axis=0)   # Shape: (1, 225, 225, 3)
     return img_array
 
 # === Page 1: Overview ===
