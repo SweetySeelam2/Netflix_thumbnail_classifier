@@ -12,7 +12,7 @@ st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide
 
 # --- File Paths ---
 MODEL_PATH = "model/final_efficientnetb4_model.h5"
-HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.h5"
+HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.keras"
 LABEL_MAP_PATH = "model/label_map_efficientnetb4.pkl"
 
 # --- Download Model if Missing ---
