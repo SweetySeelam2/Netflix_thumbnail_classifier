@@ -39,8 +39,12 @@ selection = st.sidebar.radio("Go to", pages)
 
 # Utility function to preprocess image
 def preprocess_image(image):
-    img = image.resize((224, 224))  # ✅ MATCH training input shape
-    img_array = np.array(img) / 255.0
+    # Ensure correct size
+    image = image.resize((224, 224))
+    # Force RGB (3 channels)
+    image = image.convert("RGB")
+    # Convert to normalized NumPy array
+    img_array = np.array(image) / 255.0
     img_array = np.expand_dims(img_array, axis=0)  # Shape: (1, 224, 224, 3)
     return img_array
 
