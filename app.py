@@ -4,12 +4,24 @@ import tensorflow as tf
 from PIL import Image
 import pickle
 import os
+import urllib.request
 
 # Page configuration
 st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide")
 
-# Load EfficientNetB4 model
-model = tf.keras.models.load_model("model/final_efficientnetb4_model.keras")
+# File paths
+MODEL_PATH = "model/final_efficientnetb4_model.keras"
+HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.keras"
+
+# Download model if missing
+if not os.path.exists(MODEL_PATH):
+    os.makedirs("model", exist_ok=True)
+    with st.spinner("📥 Downloading model from Hugging Face..."):
+        urllib.request.urlretrieve(HF_URL, MODEL_PATH)
+        st.success("✅ Model downloaded successfully!")
+
+# Load model
+model = tf.keras.models.load_model(MODEL_PATH)
 print("✅ Model loaded with input shape:", model.input_shape)
 
 # Load label map
