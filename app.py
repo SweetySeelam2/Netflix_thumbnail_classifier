@@ -1,19 +1,21 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # avoid CUDA warnings on CPU
+
 import streamlit as st
 import numpy as np
 import tensorflow as tf
-import keras
+from tensorflow import keras
 from PIL import Image
 import pickle
-import os
 import urllib.request
 
 # --- Streamlit Page Config ---
 st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide")
 
 # --- File Paths ---
-MODEL_PATH = "final_efficientnetb4_model.keras"
+MODEL_PATH = "model/final_efficientnetb4_model.keras"
 HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.keras"
-LABEL_MAP_PATH = "label_map_efficientnetb4.pkl"
+LABEL_MAP_PATH = "model/label_map_efficientnetb4.pkl"
 
 # --- Download Model if Missing ---
 if not os.path.exists(MODEL_PATH):
@@ -22,13 +24,12 @@ if not os.path.exists(MODEL_PATH):
         urllib.request.urlretrieve(HF_URL, MODEL_PATH)
         st.success("✅ Model downloaded successfully!")
 
-# --- Load Model with Unsafe Deserialization ---
+# --- Load Model (TF 2.15 / tf.keras loader) ---
 try:
-    keras.config.enable_unsafe_deserialization()
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     st.success("✅ Model loaded successfully.")
 except Exception as e:
-    st.error(f"❌ Failed to load model: {str(e)}")
+    st.error(f"❌ Failed to load model: {e}")
     st.stop()
 
 # --- Load Label Map ---
@@ -37,24 +38,31 @@ try:
         label_map = pickle.load(f)
     inv_label_map = {v: k for k, v in label_map.items()}
 except Exception as e:
-    st.error(f"❌ Failed to load label map: {str(e)}")
+    st.error(f"❌ Failed to load label map: {e}")
     st.stop()
 
-# --- Page Navigation ---
+# --- Helpers ---
+def get_target_size(m):
+    # model.inputs[0].shape is (None, H, W, C) or (None, None, None, 3)
+    shp = m.inputs[0].shape
+    h = int(shp[1]) if shp[1] is not None else 380
+    w = int(shp[2]) if shp[2] is not None else 380
+    return (w, h)  # PIL expects (W, H)
+
+TARGET_W, TARGET_H = get_target_size(model)
+
+def preprocess_image(image: Image.Image):
+    image = image.convert("RGB")
+    image = image.resize((TARGET_W, TARGET_H))
+    arr = np.asarray(image, dtype=np.float32) / 255.0
+    return np.expand_dims(arr, axis=0)
+
+# --- UI ---
 st.title("🎬 Netflix Thumbnail Genre Classifier (EfficientNetB4)")
 st.sidebar.title("Navigation")
 pages = ["Project Overview", "Try It Now", "Model Info", "Results & Insights"]
 selection = st.sidebar.radio("Go to", pages)
 
-# --- Image Preprocessing ---
-def preprocess_image(image):
-    image = image.convert("RGB")        # Convert to RGB (3 channels)
-    image = image.resize((224, 224))    # Resize to 224x224
-    img_array = np.asarray(image, dtype=np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-    return img_array
-
-# --- Main Pages ---
 if selection == "Project Overview":
     st.header("📌 Project Overview")
     st.markdown("""
@@ -83,7 +91,7 @@ elif selection == "Try It Now":
             "Comedy": "data/sample_posters/comedy.jpg",
             "Drama": "data/sample_posters/drama.jpg",
             "Romance": "data/sample_posters/romance.jpg",
-            "Thriller": "data/sample_posters/thriller.jpg"
+            "Thriller": "data/sample_posters/thriller.jpg",
         }
         selected_sample = st.selectbox("Pick a sample poster", list(sample_options.keys()))
         submit_sample = st.button("Submit", key="submit_sample")
@@ -105,23 +113,22 @@ elif selection == "Try It Now":
     if image is not None:
         st.image(image, caption="Input Poster", use_column_width=True)
         img_array = preprocess_image(image)
-        st.write(f"Preprocessed image shape: {img_array.shape}")  # Debug shape
+        st.caption(f"Preprocessed image shape: {img_array.shape}")  # debug
 
         try:
             prediction = model.predict(img_array)
-            predicted_label = inv_label_map[np.argmax(prediction)]
-            confidence = np.max(prediction) * 100
-
+            predicted_label = inv_label_map[int(np.argmax(prediction))]
+            confidence = float(np.max(prediction) * 100.0)
             st.markdown(f"**🎯 Predicted Genre:** `{predicted_label}`")
             st.markdown(f"**📊 Confidence:** `{confidence:.2f}%`")
         except Exception as e:
-            st.error(f"❌ Model prediction failed: {str(e)}")
+            st.error(f"❌ Model prediction failed: {e}")
 
 elif selection == "Model Info":
     st.header("🧠 Model Details")
-    st.markdown("""
+    st.markdown(f"""
 - Architecture: EfficientNetB4  
-- Input Size: 224x224 (RGB)  
+- Input Size: {TARGET_W}×{TARGET_H} (RGB)  
 - Optimizer: Adam (lr=1e-5)  
 - Loss: Categorical Crossentropy  
 - Regularization: Dropout 0.3, Class Weights  
@@ -133,18 +140,13 @@ elif selection == "Results & Insights":
     st.header("📊 Model Evaluation & Insights")
     st.subheader("✅ Accuracy Plot")
     st.image("images/Accuracy_Plot_EffNetB4.png", width=550)
-
     st.subheader("📉 Loss Plot")
     st.image("images/Loss_Plot_EffNetB4.png", width=550)
-
     st.subheader("📘 Classification Report")
     st.image("images/Classification_Report_EffNetB4.png", width=550)
-
     st.subheader("🔁 Confusion Matrix")
     st.image("images/Confusion_Matrix_EffNetB4.png", width=550)
-
     st.markdown("**Final Accuracy:** 39%")
-    st.markdown("**Business Impact:**")
     st.markdown("""
 - 🔁 Auto-tagging efficiency ↑ (by reducing tagging time by 85–90%)
 - 🎯 Poster recommendation precision ↑ 

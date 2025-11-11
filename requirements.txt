@@ -1,12 +1,17 @@
-streamlit==1.47.1
-tensorflow==2.19.0
-numpy
-pandas
-opencv-python
-opencv-python-headless
-Pillow
-matplotlib
-scikit-learn
-tqdm
-seaborn
+# Pin TF/Keras to a combo that can load TF2-saved models reliably
+tensorflow==2.15.0
+keras==2.15.0
+
+# TF 2.15 compatible pins
+numpy<2.0
+protobuf<4
+h5py==3.10.0
+opt-einsum<4
+
+# App deps
+streamlit==1.32.2
+pillow>=10.0.0
 requests
+opencv-python-headless
+pandas
+scikit-learn
