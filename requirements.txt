@@ -1,14 +1,10 @@
-# Pin TF/Keras to a combo that can load TF2-saved models reliably
 tensorflow==2.15.0
 keras==2.15.0
-
-# TF 2.15 compatible pins
 numpy<2.0
 protobuf<4
 h5py==3.10.0
 opt-einsum<4
 
-# App deps
 streamlit==1.32.2
 pillow>=10.0.0
 requests

@@ -1,6 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # avoid CUDA warnings on CPU
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # silence CUDA/GPU logs
 import streamlit as st
 import numpy as np
 import tensorflow as tf
@@ -9,12 +8,12 @@ from PIL import Image
 import pickle
 import urllib.request
 
-# --- Streamlit Page Config ---
 st.set_page_config(page_title="Netflix Thumbnail Genre Classifier", layout="wide")
 
 # --- File Paths ---
-MODEL_PATH = "model/final_efficientnetb4_model.keras"
-HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.keras"
+# Use the H5 model (NOT the .keras file)
+MODEL_PATH = "model/final_efficientnetb4_model.h5"
+HF_URL = "https://huggingface.co/spaces/sweetyseelam/netflix-thumbnail-model/resolve/main/final_efficientnetb4_model.h5"
 LABEL_MAP_PATH = "model/label_map_efficientnetb4.pkl"
 
 # --- Download Model if Missing ---
@@ -24,7 +23,7 @@ if not os.path.exists(MODEL_PATH):
         urllib.request.urlretrieve(HF_URL, MODEL_PATH)
         st.success("✅ Model downloaded successfully!")
 
-# --- Load Model (TF 2.15 / tf.keras loader) ---
+# --- Load Model (H5 with tf.keras loader; compile=False avoids optimizer deserialization)
 try:
     model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     st.success("✅ Model loaded successfully.")
@@ -41,13 +40,11 @@ except Exception as e:
     st.error(f"❌ Failed to load label map: {e}")
     st.stop()
 
-# --- Helpers ---
+# --- Use the model’s own input size (EffNetB4 is usually 380x380 unless retrained)
 def get_target_size(m):
-    # model.inputs[0].shape is (None, H, W, C) or (None, None, None, 3)
-    shp = m.inputs[0].shape
-    h = int(shp[1]) if shp[1] is not None else 380
-    w = int(shp[2]) if shp[2] is not None else 380
-    return (w, h)  # PIL expects (W, H)
+    # input_shape is (None, H, W, C)
+    _, h, w, _ = m.input_shape
+    return int(w), int(h)
 
 TARGET_W, TARGET_H = get_target_size(model)
 
