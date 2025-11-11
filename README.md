@@ -1,5 +1,5 @@
 
-[![Live App - Try it Now](https://img.shields.io/badge/Live%20App-Streamlit-informational?style=for-the-badge&logo=streamlit)](https://netflixthumbnailclassifier-dl.streamlit.app/)
+[![Live App - Try it Now](https://img.shields.io/badge/Live%20App-Streamlit-informational?style=for-the-badge&logo=streamlit)](https://netflix-thumbnail-classifier.streamlit.app/)
 
 ---
 
@@ -125,7 +125,7 @@ If this model or an improved version were adopted by Netflix:
 
 You can interactively test the model here:
 
-👉 [**Live Streamlit App**](https://netflixthumbnailclassifier-dl.streamlit.app/)
+👉 [**Live Streamlit App**](https://netflix-thumbnail-classifier.streamlit.app/)
 
 Features:
 - 📤 Upload your own poster image
